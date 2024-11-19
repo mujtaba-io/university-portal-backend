@@ -28,4 +28,3 @@ urlpatterns = [
     path('events/', academics.get_events), # Get events
     path('extracurricularactivities/', academics.get_extra_curricular_activities), # Get extra curricular activities
 ]
-
