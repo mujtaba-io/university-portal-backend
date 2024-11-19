@@ -1,7 +1,7 @@
 
 from django.urls import include, path
 from . import views
-from .more_views import students, academics
+from .more_views import students, academics, rooms
 
 
 
@@ -27,4 +27,7 @@ urlpatterns = [
     
     path('events/', academics.get_events), # Get events
     path('extracurricularactivities/', academics.get_extra_curricular_activities), # Get extra curricular activities
+
+    path('pcs/get/', rooms.get_pcs), # Get PCs
+    path('pcs/book/', rooms.book_pc), # Book a PC
 ]

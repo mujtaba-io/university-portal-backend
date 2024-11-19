@@ -28,4 +28,7 @@ admin.site.register(ExtraCurricularActivity)
 admin.site.register(HeldLecture)
 
 
+admin.site.register(PC)
+
+
 

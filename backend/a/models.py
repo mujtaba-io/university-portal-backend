@@ -66,6 +66,7 @@ class Course(models.Model):
 
 class Room(models.Model):
     name = models.CharField(max_length=16)
+    is_lab = models.BooleanField(default=False) # Is this room a lab?
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -127,6 +128,34 @@ class Class(models.Model):
 
 
 
+
+
+
+# PCs in Rooms which are labs
+class PC(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.room} - {self.pk}"
+
+    # Check if the PC is reserved at a given time
+    # @param current_time: Time to check if the PC is reserved (python datetime.time)
+    def is_reserved(self, given_time):
+        for reservation in self.pc_reservations.all():
+            if reservation.start_time <= given_time <= reservation.end_time:
+                return True
+        return False
+
+
+class PCReservation(models.Model):
+    pc = models.ForeignKey(PC, related_name='pc_reservations', on_delete=models.CASCADE)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.pc} reserved from {self.start_time} to {self.end_time}"
 
 
 
