@@ -110,25 +110,33 @@ def student_attendance(request):
         user = User.objects.get(username=username)
         
         if user.student:
-            attendance_summary = {}
+            attendance_data = []
 
-            for held_lecture in HeldLecture.objects.all():
-                course_code = held_lecture.lecture.course.code
-                course_name = held_lecture.lecture.course.name
-                created_at = held_lecture.created_at.strftime('%d-%m-%Y')
-                is_present = user.student in held_lecture.students.all()
-
-                if course_code not in attendance_summary:
-                    attendance_summary[course_code] = {
-                        "course_name": course_name,
-                        "absent_dates": []
-                    }
-
-                if not is_present:
-                    attendance_summary[course_code]["absent_dates"].append(created_at)
-
-            return JsonResponse({"attendance": attendance_summary}, status=200)
-
+            # Get all student's courses
+            lectures = user.student.lectures.all() # To get lecture.course
+            course_data = []
+             # For each course, get all the held lectures
+            for lecture in lectures:
+                held_lectures = HeldLecture.objects.filter(lecture__course=lecture.course)
+                held_lectures_absents = []
+                for held_lecture in held_lectures:
+                    if user.student in held_lecture.students.all():
+                        continue
+                    else:
+                        held_lectures_absents.append({
+                            "absent_date": held_lecture.created_at.strftime('%d-%m-%Y'),
+                        })
+                course_data.append({
+                    "course_name": lecture.course.name,
+                    "course_code": lecture.course.code,
+                    "absents": held_lectures_absents,
+                })
+            attendance_data.append({
+                "username": user.username,
+                "attendance": course_data,
+            })
+            return JsonResponse({ "attendance": attendance_data }, status=200)
         return JsonResponse({"error": "Student not found"}, status=404)
     
     return JsonResponse({"error": "Invalid request"}, status=400)
+
