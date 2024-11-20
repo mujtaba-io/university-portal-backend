@@ -1,4 +1,6 @@
 # your_app/models.py
+from django.utils import timezone # use django's timezone instead of python's datetime
+from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.hashers import make_password
@@ -64,7 +66,19 @@ class Course(models.Model):
         return self.name
 
 
+
+
+class Block(models.Model):
+    name = models.CharField(max_length=16)
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+
 class Room(models.Model):
+    block = models.ForeignKey(Block, on_delete=models.CASCADE)
     name = models.CharField(max_length=16)
     is_lab = models.BooleanField(default=False) # Is this room a lab?
     created_at = models.DateField(auto_now_add=True)
@@ -141,21 +155,34 @@ class PC(models.Model):
 
     # Check if the PC is reserved at a given time
     # @param current_time: Time to check if the PC is reserved (python datetime.time)
-    def is_reserved(self, given_time):
-        for reservation in self.pc_reservations.all():
-            if reservation.start_time <= given_time <= reservation.end_time:
-                return True
-        return False
+    def is_reserved(self, given_time_slot):
+        # Delete the reservations which are older than 1 day
+        self.pc_reservations.filter(created_at__lt=timezone.now()-timedelta(days=1)).delete()
+        # Check if the PC is reserved at the given time
+        return self.pc_reservations.filter(slot=given_time_slot).exists()
 
 
 class PCReservation(models.Model):
     pc = models.ForeignKey(PC, related_name='pc_reservations', on_delete=models.CASCADE)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
     created_at = models.DateField(auto_now_add=True)
+    
+    SLOT_CHOICES = [
+        ('08:30-10:00', '08:30 to 10:00'),
+        ('10:00-11:30', '10:00 to 11:30'),
+        ('11:30-01:00', '11:30 to 01:00'),
+        ('01:00-02:30', '01:00 to 02:30'),
+        ('02:30-04:00', '02:30 to 04:00'),
+        ('04:00-05:30', '04:00 to 05:30')
+    ]
+
+    slot = models.CharField(
+        max_length=11,  # Adjust length based on the longest value
+        choices=SLOT_CHOICES,
+        default='08:00-10:00',  # Optional: set a default value
+    )
 
     def __str__(self):
-        return f"{self.pc} reserved from {self.start_time} to {self.end_time}"
+        return f"{self.pc} - {self.slot}"
 
 
 
@@ -272,3 +299,4 @@ class HeldLecture(models.Model):
 
     def __str__(self):
         return f"{self.lecture} - {self.created_at}"
+    

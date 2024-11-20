@@ -10,11 +10,16 @@ admin.site.index_title = "Welcome to Portal Admin Area"
 # Register your models here.
 admin.site.register(User)
 admin.site.register(Student)
+
 admin.site.register(Lecture)
 admin.site.register(Course)
+
+admin.site.register(Block)
 admin.site.register(Room)
+
 admin.site.register(TimeTable)
 admin.site.register(Class)
+
 
 admin.site.register(AcademicCalendar)
 admin.site.register(AdacemicCalendarEvent)
@@ -29,6 +34,7 @@ admin.site.register(HeldLecture)
 
 
 admin.site.register(PC)
+admin.site.register(PCReservation)
 
 
 

@@ -16,29 +16,41 @@ def get_pcs(request):
         username = decode_jwt_token(token)
         user = User.objects.get(username=username)
 
-        rooms = Room.objects.all()
-        rooms_data = []
+        blocks = Block.objects.all()
+        blocks_data = []
 
-        for room in rooms:
-            if room.is_lab:
+        for block in blocks:
+            rooms = Room.objects.filter(block=block,is_lab=True)
+            rooms_data = []
+            for room in rooms:
                 pcs = PC.objects.filter(room=room)
                 pcs_data = []
                 for pc in pcs:
                     pcs_data.append({
                         "pc_name": str(pc.pk),
-                        "is_available": not pc.is_reserved(datetime.datetime.now().time())
+                        "is_available": not pc.is_reserved('08:30-10:00')
                     })
                 rooms_data.append({
                     "room_name": room.name,
                     "pcs": pcs_data,
                 })
+            blocks_data.append({
+                "block_name": block.name,
+                "rooms": rooms_data,
+            })
+
         return JsonResponse(
             {
-                "pcs": rooms_data,
+                "blocks": blocks_data,
             },
             status=200
         )
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+
+
 
 
 @csrf_exempt
@@ -49,14 +61,13 @@ def book_pc(request):
         username = decode_jwt_token(token)
         user = User.objects.get(username=username)
 
-        pc_id = request.POST['pc_id']
-        start_time = request.POST['start_time']
-        end_time = request.POST['end_time']
+        pc_name = request.POST['pc_name']
+        time_slot = request.POST['time_slot']
 
-        pc = PC.objects.get(pk=pc_id)
+        pc = PC.objects.get(pk=pc_name)
 
         # Check if the PC is available (not reserved at the given time)
-        if pc.is_reserved(start_time) or pc.is_reserved(end_time):
+        if pc.is_reserved(time_slot):
             return JsonResponse(
                 {
                     "error": "PC is already reserved at the given time",
@@ -64,7 +75,7 @@ def book_pc(request):
                 status=400
             )
 
-        reservation = PCReservation(pc=pc, start_time=start_time, end_time=end_time)
+        reservation = PCReservation(pc=pc, slot=time_slot)
         reservation.save()
 
         return JsonResponse(
@@ -74,3 +85,12 @@ def book_pc(request):
             status=200
         )
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+"""
+Request:
+POST at domain.com/api/rooms/book/
+{
+    "pc_id": 1,
+    "time_slot": "08:30-10:00"
+}
+"""
