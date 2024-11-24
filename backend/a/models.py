@@ -223,16 +223,22 @@ class AdacemicCalendarEvent(models.Model):
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return self.title
+        semester_name = "No Semester"
+        semester = AcademicCalendar.objects.all()
+        for sem in semester:
+            if self in sem.events.all():
+                semester_name = sem.semester_name
+                break
+        return semester_name + ' - ' + self.title + ' - ' + str(self.start_date)
 
 
 class AcademicCalendar(models.Model):
     semester_name = models.CharField(max_length=128, default="SP22") # FA32, SP22, FA21, etc.
-    events = models.ManyToManyField(AdacemicCalendarEvent)
+    events = models.ManyToManyField(AdacemicCalendarEvent, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.created_at}"
+        return str(self.semester_name)
 
 
 
@@ -251,6 +257,8 @@ class AcademicCalendar(models.Model):
 class News(models.Model):
     title = models.CharField(max_length=256, default='News Title')
     content = models.TextField(default="News content")
+    youtube_link = models.URLField(default='https://www.youtube.com')
+    image_url = models.URLField(default='https://www.nist.gov/sites/default/files/styles/2800_x_2800_limit/public/images/2018/07/10/mass_spec_cd_scan.jpg')
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -275,7 +283,7 @@ linkedin
 """
 class Event(models.Model):
     title = models.CharField(max_length=256, default='Event Title')
-    image = models.ImageField(upload_to='uploads/events/', default='uploads/events/default.jpg')
+    image_url = models.CharField(max_length=256, default='https://www.nist.gov/sites/default/files/styles/2800_x_2800_limit/public/images/2018/07/10/mass_spec_cd_scan.jpg')
     description = models.TextField(default="Event description")
     link = models.URLField(default='https://www.example.com')
 

@@ -20,12 +20,15 @@ urlpatterns = [
     path('student/attendance/', students.student_attendance),
 
     path('calendar/', academics.get_academic_calendar), # Academic calendar
-    path('calendar/create/', academics.create_academic_calendar), # Create an event in the calendar
+    path('calendar/addevent/', academics.add_academic_calendar_event), # Create an event in the calendar
 
     path('news/', academics.get_news), # Get news
     path('news/create/', academics.create_news), # Create news
     
     path('events/', academics.get_events), # Get events
+    path('events/create/', academics.create_event), # Create event
+
+
     path('extracurricularactivities/', academics.get_extra_curricular_activities), # Get extra curricular activities
 
     path('pcs/get/', rooms.get_pcs), # Get PCs

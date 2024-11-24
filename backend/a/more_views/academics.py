@@ -32,29 +32,11 @@ def get_academic_calendar(request):
 
 
 
-# Request format for create_academic_calendar:
-"""
-POST at domain.com/api/create_academic_calendar/
-{
-    "events": [
-        {
-            "title": "Event 1",
-            "start_date": "01-01-2022"
-        },
-        {
-            "title": "Event 2",
-            "start_date": "02-01-2022"
-        }
-    ]
-}
 
-"""
-
-
-# Create academic calendar - TODO: INCLOMPLETE UNTIL STUDENT MODULE IS DONE
+# Create academic calendar event by admin
 @csrf_exempt
 @token_required
-def create_academic_calendar(request):
+def add_academic_calendar_event(request):
     if request.method == 'POST':
         token = request.headers.get('token')
         username = decode_jwt_token(token)
@@ -62,18 +44,31 @@ def create_academic_calendar(request):
         if not user.is_superuser or not user.is_staff:
             return JsonResponse({ "error": "Only admin can create academic calendar" }, status=403)
         
-        data = json.loads(request.body)
-        events_data = data.get('events', [])
-        events = []
-        for event_data in events_data:
-            event = AdacemicCalendarEvent.objects.create(
-                title=event_data.get('title', ''),
-                start_date=datetime.strptime(event_data.get('start_date', ''), '%d-%m-%Y').date()
-            )
-            events.append(event)
-        calendar = AcademicCalendar.objects.create()
-        calendar.events.set(events)
-        return JsonResponse({ "message": "Academic calendar created successfully" }, status=201)
+        semester_name = request.POST.get('semester_name', '').strip()
+        title = request.POST.get('title', '').strip()
+        start_date = request.POST.get('start_date', '').strip()
+
+        # make start date a date object
+        start_date = datetime.strptime(start_date, '%d-%m-%Y')
+
+        if not semester_name or not title or not start_date:
+            return JsonResponse({ "error": "Semester name, title and start date are required" }, status=400)
+
+        # If academic calendar already exists, add event to it, else create a new one
+        academic_calendar, is_created = AcademicCalendar.objects.get_or_create(semester_name=semester_name)
+        if not academic_calendar:
+            academic_calendar = AcademicCalendar.objects.create(semester_name=semester_name)
+            academic_calendar.save()
+
+        event = AdacemicCalendarEvent.objects.create(
+            title=title,
+            start_date=start_date
+        )
+        event.save()
+        academic_calendar.events.add(event)
+        academic_calendar.save()
+
+        return JsonResponse({ "message": "Event added to academic calendar" }, status=201)
     return JsonResponse({ "error": "Invalid request" }, status=400)
 
 
@@ -95,6 +90,8 @@ def get_news(request):
             news_data.append({
                 "title": news_item.title,
                 "content": news_item.content,
+                "youtube_link": news_item.youtube_link,
+                "image_url": news_item.image_url,
                 "created_at": news_item.created_at.strftime('%d-%m-%Y %H:%M'),
             })
         return JsonResponse({ "news": news_data }, status=200)
@@ -103,14 +100,6 @@ def get_news(request):
 
 
 
-"""
-Input format:
-POST at domain.com/api/news/create/
-{
-    "title": "News Title",
-    "content": "News content"
-}
-"""
 
 # Create news by admin
 @csrf_exempt
@@ -125,17 +114,24 @@ def create_news(request):
         
         title = request.POST.get('title', '').strip()
         content = request.POST.get('content', '').strip()
-        if not title or not content:
-            return JsonResponse({ "error": "Title and content are required" }, status=400)
+        youtube_link = request.POST.get('youtube_link', '').strip()
+        image_url = request.POST.get('image_url', '').strip()
+        if not title or not content or not youtube_link or not image_url:
+            return JsonResponse({ "error": "Title and content and yt link and image url is required" }, status=400)
         
         news = News.objects.create(
             title=title,
-            content=content
+            content=content,
+            youtube_link=youtube_link,
+            image_url=image_url
         )
         news.save()
 
         return JsonResponse({ "message": "News created successfully" }, status=201)
-    return JsonResponse({ "error": "Invalid request" }, status=400)
+    return JsonResponse({ "error": "Invalid request method. it must be POST." }, status=400)
+
+
+
 
 
 
@@ -160,6 +156,56 @@ def get_events(request):
             })
         return JsonResponse({ "events": events_data }, status=200)
     return JsonResponse({ "error": "Invalid request" }, status=400)
+
+
+
+@csrf_exempt
+@token_required
+def create_event(request):
+    if request.method == 'POST':
+        token = request.headers.get('token')
+        username = decode_jwt_token(token)
+        user = User.objects.get(username=username)
+        if not user.is_superuser or not user.is_staff:
+            return JsonResponse({ "error": "Only admin can create events" }, status=403)
+        
+        title = request.POST.get('title', '').strip()
+        image_url = request.FILES.get('image_url', None)
+        description = request.POST.get('description', '').strip()
+        link = request.POST.get('link', '').strip()
+        day = request.POST.get('day', '').strip()
+        time = request.POST.get('time', '').strip()
+        venue = request.POST.get('venue', '').strip()
+        registration = request.POST.get('registration', '').strip()
+        participation_registration = request.POST.get('participation_registration', '').strip()
+        linkedin = request.POST.get('linkedin', '').strip()
+
+        if not title or not image_url or not description or not link or not day or not time or not venue or not registration or not participation_registration or not linkedin:
+            return JsonResponse({ "error": "All fields are required" }, status=400)
+
+        event = Event.objects.create(
+            title=title,
+            image_url=image_url,
+            description=description,
+            link=link,
+            day=day,
+            time=time,
+            venue=venue,
+            registration=registration,
+            participation_registration=participation_registration,
+            linkedin=linkedin
+        )
+        event.save()
+
+        return JsonResponse({ "message": "Event created successfully" }, status=201)
+    return JsonResponse({ "error": "Invalid request" }, status=400)
+
+
+
+
+
+
+
 
 
 
