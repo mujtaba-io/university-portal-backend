@@ -34,6 +34,14 @@ class User(AbstractUser):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    father_name = models.CharField(max_length=128, default='Father Name')
+    father_occupation = models.CharField(max_length=128 , default='Father Occupation')
+    guardian_name = models.CharField(max_length=128, default='Guardian Name')
+    guardian_occupation = models.CharField(max_length=128, default='Guardian Occupation')
+    date_of_birth = models.DateField(default=timezone.now)
+    nic = models.CharField(max_length=16, default='00000-0000000-0')
+    blood_group = models.CharField(max_length=4 , default='A+')
+
     admission_time = models.DateField() # Exact time of admission
     roll_number = models.CharField(max_length=10) # 001
     program = models.CharField(max_length=100) # BS, MS, PhD, MA, etc.
@@ -48,6 +56,21 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    # Get semester name such as 'SP22', 'FA21', etc. from the admission time
+    def get_semester_name(self):
+        if self.admission_time.month in [1, 2, 3, 4, 5, 6]:
+            return f"SP{str(self.admission_time.year)[2:]}"
+        elif self.admission_time.month in [7, 8, 9, 10, 11, 12]:
+            return f"FA{str(self.admission_time.year)[2:]}"
+        else:
+            return "Unknown"
+    
+    # When saving a student, make sure its username is: semester name + program + roll number
+    def save(self, *args, **kwargs):
+        self.user.username = self.get_semester_name() +'-'+ self.program +'-'+ self.roll_number
+        self.user.save()
+        super().save(*args, **kwargs)
 
 
 

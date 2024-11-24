@@ -31,6 +31,14 @@ def student_get(request):
                 "cgpa": user.student.cgpa,
                 "is_graduated": user.student.is_graduated,
                 "is_dropout": user.student.is_dropout,
+
+                "father_name": user.student.father_name,
+                "father_occupation": user.student.father_occupation,
+                "guardian_name": user.student.guardian_name,
+                "guardian_occupation": user.student.guardian_occupation,
+                "date_of_birth": user.student.date_of_birth.strftime('%d-%m-%Y'),
+                "nic": user.student.nic,
+                "blood_group": user.student.blood_group,
             }
             return JsonResponse(json_data, status=200)
         return JsonResponse({"error": "Student not found"}, status=404)

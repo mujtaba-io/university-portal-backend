@@ -90,12 +90,13 @@ def login(request):
         password = request.POST.get('password', '').strip()
 
         try:
+            print(User.objects.all())
             user = User.objects.get(username=username)
             if user.check_password(password):  # Using check_password to verify
                 token = create_jwt_token(user.username)
                 return JsonResponse({"token": token}, status=200)
             else:
-                return JsonResponse({"error": "Invalid credentials"}, status=401)
+                return JsonResponse({"error": "Invalid password."}, status=401)
         except User.DoesNotExist:
-            return JsonResponse({"error": "Invalid credentials"}, status=401)
-    return JsonResponse({"error": "Invalid request"}, status=400)
+            return JsonResponse({"error": "User does nto exist."}, status=401)
+    return JsonResponse({"error": "Invalid request method."}, status=400)
