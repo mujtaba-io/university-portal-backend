@@ -204,6 +204,8 @@ class PCReservation(models.Model):
         default='08:00-10:00',  # Optional: set a default value
     )
 
+    is_approved = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.pc} - {self.slot}"
 

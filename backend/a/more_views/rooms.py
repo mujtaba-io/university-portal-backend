@@ -80,7 +80,7 @@ def book_pc(request):
 
         return JsonResponse(
             {
-                "message": "PC reserved",
+                "message": "PC reservation request sent to admin!",
             },
             status=200
         )

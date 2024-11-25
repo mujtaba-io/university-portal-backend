@@ -1,7 +1,7 @@
 
 from django.urls import include, path
 from . import views
-from .more_views import students, academics, rooms
+from .more_views import students, academics, rooms, adminrequests
 
 
 
@@ -33,4 +33,8 @@ urlpatterns = [
 
     path('pcs/get/', rooms.get_pcs), # Get PCs
     path('pcs/book/', rooms.book_pc), # Book a PC
+
+    # Admin requests
+    path('pcs/pcrequests/', adminrequests.get_pc_requests), # Get PC reservation requests
+    path('pcs/accept/', adminrequests.accept_pc_request), # Accept PC reservation request
 ]
