@@ -173,22 +173,27 @@ def create_event(request):
         image_url = request.FILES.get('image_url', None)
         description = request.POST.get('description', '').strip()
         link = request.POST.get('link', '').strip()
-        day = request.POST.get('day', '').strip()
+        date = request.POST.get('date', '').strip()
         time = request.POST.get('time', '').strip()
         venue = request.POST.get('venue', '').strip()
         registration = request.POST.get('registration', '').strip()
         participation_registration = request.POST.get('participation_registration', '').strip()
         linkedin = request.POST.get('linkedin', '').strip()
 
-        if not title or not image_url or not description or not link or not day or not time or not venue or not registration or not participation_registration or not linkedin:
+        if not title or not image_url or not description or not link or not date or not time or not venue or not registration or not participation_registration or not linkedin:
             return JsonResponse({ "error": "All fields are required" }, status=400)
+
+        # convert date from dd-mm-yyyy into a date object
+        date = datetime.strptime(date, '%d-%m-%Y')
+        # convert time from hh:mm into a time object
+        time = datetime.strptime(time, '%H:%M')
 
         event = Event.objects.create(
             title=title,
             image_url=image_url,
             description=description,
             link=link,
-            day=day,
+            date=date,
             time=time,
             venue=venue,
             registration=registration,

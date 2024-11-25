@@ -300,15 +300,16 @@ class Event(models.Model):
     description = models.TextField(default="Event description")
     link = models.URLField(default='https://www.example.com')
 
-    created_at = models.DateField(auto_now_add=True)
-    day = models.CharField(max_length=16, default='Monday')
-    
+    date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
+
     venue = models.CharField(max_length=256, default='Venue')
 
     registration = models.URLField(default='https://www.example.com')
     participation_registration = models.URLField(default='https://www.example.com')
     linkedin = models.URLField(default='https://www.linkedin.com')
+
+    created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.title
