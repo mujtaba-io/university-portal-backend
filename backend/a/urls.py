@@ -37,4 +37,10 @@ urlpatterns = [
     # Admin requests
     path('pcs/pcrequests/', adminrequests.get_pc_requests), # Get PC reservation requests
     path('pcs/accept/', adminrequests.accept_pc_request), # Accept PC reservation request
+    path('pcs/reject/', adminrequests.reject_pc_request), # Reject PC reservation request
+
+    # makeup lectures reject/accept
+    path('makeuplectures/requests/', adminrequests.get_makeup_lecture_requests), # Get makeup lectures
+    path('makeuplectures/accept/', adminrequests.accept_makeup_lecture_request), # Accept makeup lecture
+    path('makeuplectures/reject/', adminrequests.reject_makeup_lecture_request), # Reject makeup lecture
 ]

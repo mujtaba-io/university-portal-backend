@@ -124,6 +124,7 @@ class Lecture(models.Model):
     end_time = models.TimeField()
 
     is_makeup = models.BooleanField(default=False) # If makeup, ignore it in timetable & anywhere after end_time
+    is_makeup_approved = models.BooleanField(default=False) # If makeup, is it approved by the admin?
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
