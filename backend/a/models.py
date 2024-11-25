@@ -16,6 +16,11 @@ class User(AbstractUser):
 
     phone = models.CharField(max_length=32, default='+92 000 000-0000')
 
+    is_faculty = models.BooleanField(default=False)
+    is_student = models.BooleanField(default=False)
+    # is_superuser = models.BooleanField(default=False) DEFINED IN BASE CLASS, FOR ADMIN
+    # is_staff = models.BooleanField(default=False) DEFINED IN BASE CLASS, FOR STAFF (read: admin)
+
     created_at = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
@@ -24,6 +29,10 @@ class User(AbstractUser):
         # Hash the password if it's not hashed already
         if self.pk is None or not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
+        
+        if self.student: # If there is a student object, set is_student to True
+            self.is_student = True
+        
         super().save(*args, **kwargs)
 
 
