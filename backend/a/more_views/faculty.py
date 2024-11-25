@@ -33,7 +33,7 @@ def request_makeup_lecture(request):
         start_time = request.POST.get('start_time', '').strip()
         end_time = request.POST.get('end_time', '').strip()
 
-        if not class_name or not course_code or not teacher_username or not day or not block_name or not room_name or not start_time or not end_time:
+        if not class_name or not course_code or not day or not block_name or not room_name or not start_time or not end_time:
             return JsonResponse({ "error": "All fields are required" }, status=400)
         
         # check if teacher exists

@@ -30,7 +30,8 @@ class User(AbstractUser):
         if self.pk is None or not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
         
-        if self.student: # If there is a student object, set is_student to True
+        potential_student = Student.objects.filter(user=self)
+        if potential_student.exists():
             self.is_student = True
         
         super().save(*args, **kwargs)

@@ -143,7 +143,7 @@ def get_events(request):
         for activity in events:
             events_data.append({
                 "title": activity.title,
-                "image": activity.image.url,
+                "image_url": activity.image_url,
                 "description": activity.description,
                 "link": activity.link,
                 "created_at": activity.created_at.strftime('%d-%m-%Y %H:%M'),
