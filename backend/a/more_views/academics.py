@@ -170,7 +170,7 @@ def create_event(request):
             return JsonResponse({ "error": "Only admin can create events" }, status=403)
         
         title = request.POST.get('title', '').strip()
-        image_url = request.FILES.get('image_url', None)
+        image_url = request.POST.get('image_url', '').strip()
         description = request.POST.get('description', '').strip()
         link = request.POST.get('link', '').strip()
         date = request.POST.get('date', '').strip()
@@ -179,9 +179,6 @@ def create_event(request):
         registration = request.POST.get('registration', '').strip()
         participation_registration = request.POST.get('participation_registration', '').strip()
         linkedin = request.POST.get('linkedin', '').strip()
-
-        if not title or not image_url or not description or not link or not date or not time or not venue or not registration or not participation_registration or not linkedin:
-            return JsonResponse({ "error": "All fields are required" }, status=400)
 
         # convert date from dd-mm-yyyy into a date object
         date = datetime.strptime(date, '%d-%m-%Y')
