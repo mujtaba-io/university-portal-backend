@@ -146,12 +146,11 @@ def get_makeup_lecture_requests(request):
         if not user.is_superuser or not user.is_staff:
             return JsonResponse({ "error": "Only admin can view makeup class requests" }, status=403)
 
-        makeup_lectures = Lecture.objects.all()
+        makeup_lectures = Lecture.objects.filter(is_makeup=True)
         makeup_lectures_data = []
         for makeup_lecture in makeup_lectures:
             makeup_lectures_data.append({
                 "lecture_id": makeup_lecture.pk,
-                "student": makeup_lecture.student.username,
                 "course": makeup_lecture.course.name,
                 "teacher": makeup_lecture.teacher.username,
                 "day": makeup_lecture.day,
