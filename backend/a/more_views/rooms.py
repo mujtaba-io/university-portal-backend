@@ -78,7 +78,7 @@ def book_pc(request):
                 status=400
             )
 
-        reservation = PCReservation(pc=pc, reserved_by=user, slot=time_slot)
+        reservation = PCReservation(pc=pc, reserved_by=user.student, slot=time_slot)
         reservation.save()
 
         return JsonResponse(
