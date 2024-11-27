@@ -31,7 +31,7 @@ def get_pc_requests(request):
                 for pc_reservation in pc_reservations:
                     pc_reservations_data.append({
                         "pc_name": pc_reservation.pc.pk,
-                        "user": pc_reservation.user.username,
+                        "user": pc_reservation.reserved_by.user.username,
                         "slot": pc_reservation.slot,
                         "is_approved": pc_reservation.is_approved,
                         "created_at": pc_reservation.created_at.strftime('%d-%m-%Y %H:%M:%S'),
@@ -68,16 +68,19 @@ def accept_pc_request(request):
             return JsonResponse({ "error": "Only admin can accept PC reservation requests" }, status=403)
 
         pc_name = request.POST.get('pc_name', '').strip()
-        username = request.POST.get('username', '').strip()
+        student_username = request.POST.get('username', '').strip()
         slot = request.POST.get('slot', '').strip()
 
         if not pc_name or not username or not slot:
             return JsonResponse({ "error": "PC name, user name and slot are required" }, status=400)
 
         pc = PC.objects.get(pk=pc_name)
-        user = User.objects.get(username=username)
+        student_user = User.objects.get(username=student_username)
 
-        pc_reservation = PCReservation.objects.get(pc=pc, user=user, slot=slot)
+        if not student_user.student:
+            return JsonResponse({ "error": "The one who reserved is not a student" }, status=400)
+
+        pc_reservation = PCReservation.objects.get(pc=pc, reserved_by=student_user.student, slot=slot)
         pc_reservation.is_approved = True
         pc_reservation.save()
 
@@ -104,16 +107,19 @@ def reject_pc_request(request):
             return JsonResponse({ "error": "Only admin can reject PC reservation requests" }, status=403)
 
         pc_name = request.POST.get('pc_name', '').strip()
-        username = request.POST.get('username', '').strip()
+        student_username = request.POST.get('username', '').strip()
         slot = request.POST.get('slot', '').strip()
 
-        if not pc_name or not username or not slot:
+        if not pc_name or not student_username or not slot:
             return JsonResponse({ "error": "PC name, user name and slot are required" }, status=400)
 
         pc = PC.objects.get(pk=pc_name)
-        user = User.objects.get(username=username)
+        student_user = User.objects.get(username=student_username)
 
-        pc_reservation = PCReservation.objects.get(pc=pc, user=user, slot=slot)
+        if not student_user.student:
+            return JsonResponse({ "error": "The one who reserved is not a student" }, status=400)
+
+        pc_reservation = PCReservation.objects.get(pc=pc, reserved_by=student_user.student, slot=slot)
         pc_reservation.delete()
 
         return JsonResponse(

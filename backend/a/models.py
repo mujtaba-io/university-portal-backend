@@ -198,6 +198,7 @@ class PC(models.Model):
 
 class PCReservation(models.Model):
     pc = models.ForeignKey(PC, related_name='pc_reservations', on_delete=models.CASCADE)
+    reserved_by = models.ForeignKey(Student, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     
     SLOT_CHOICES = [

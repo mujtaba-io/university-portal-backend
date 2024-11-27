@@ -61,6 +61,9 @@ def book_pc(request):
         username = decode_jwt_token(token)
         user = User.objects.get(username=username)
 
+        if not user.student:
+            return JsonResponse({"error": "Only students can book PCs"}, status=403)
+
         pc_name = request.POST['pc_name']
         time_slot = request.POST['time_slot']
 
@@ -75,7 +78,7 @@ def book_pc(request):
                 status=400
             )
 
-        reservation = PCReservation(pc=pc, slot=time_slot)
+        reservation = PCReservation(pc=pc, reserved_by=user, slot=time_slot)
         reservation.save()
 
         return JsonResponse(
