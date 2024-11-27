@@ -43,15 +43,17 @@ def request_makeup_lecture(request):
             block = Block.objects.get(name=block_name)
             room = Room.objects.get(name=room_name, block=block)
         except:
+            # Print stack trace
+            import traceback
+            traceback.print_exc()
             return JsonResponse({ "error": "Invalid data provided" }, status=400)
         
         # Create a lectureobject
         lecture = Lecture.objects.create(
-            class_name=_class,
+            _class=_class,
             course=course,
             teacher=user, # This user is a faculty
             day=day,
-            block=block,
             room=room,
             start_time=start_time,
             end_time=end_time,
@@ -108,13 +110,13 @@ def get_students_in_lecture(request):
             return JsonResponse({ "error": "Lecture ID is required" }, status=400)
         
         lecture = Lecture.objects.get(pk=lecture_id)
-        students = lecture.students.all()
+        students = lecture.student_set.all()
         students_data = []
         for student in students:
             students_data.append({
                 "student_id": student.pk,
-                "student_name": student.first_name + ' ' + student.last_name,
-                "student_username": student.username,
+                "student_name": student.user.first_name + ' ' + student.user.last_name,
+                "student_username": student.user.username,
             })
         return JsonResponse({ "students": students_data }, status=200)
     return JsonResponse({ "error": "Invalid request method" }, status=400)
@@ -141,19 +143,23 @@ def mark_attendance(request):
         username = decode_jwt_token(token)
         user = User.objects.get(username=username)
 
-        lecture_id = request.POST.get('lecture_id', '').strip()
-        students = request.POST.getlist('students[]')
+        if not user.is_faculty:
+            return JsonResponse({ "error": "Only faculty can mark attendance" }, status=403)
 
-        if not lecture_id or not students:
+        lecture_id = request.POST.get('lecture_id', '').strip()
+        students_users = request.POST.getlist('students[]')
+
+        if not lecture_id or not students_users:
+            print(lecture_id, students_users)
             return JsonResponse({ "error": "Lecture ID and students list are required" }, status=400)
         
         lecture = Lecture.objects.get(pk=lecture_id)
         held_lecture = HeldLecture.objects.create(lecture=lecture)
         held_lecture.save()
 
-        for student_username in students:
-            student = User.objects.get(username=student_username)
-            held_lecture.students.add(student)
+        for student_username in students_users:
+            student_user = User.objects.get(username=student_username)
+            held_lecture.students.add(student_user.student)
         
         return JsonResponse({ "message": "Attendance marked successfully" }, status=201)
     return JsonResponse({ "error": "Invalid request method" }, status=400)
