@@ -100,3 +100,38 @@ def login(request):
         except User.DoesNotExist:
             return JsonResponse({"error": "User does nto exist."}, status=401)
     return JsonResponse({"error": "Invalid request method."}, status=400)
+
+
+
+# Geenral user data GET
+@csrf_exempt
+@token_required
+def get_user(request):
+    if request.method == 'GET':
+        token = request.headers.get('token')
+        username = decode_jwt_token(token)
+        user = User.objects.get(username=username)
+        json_data = {
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone": user.phone,
+            "admission_time": "--",
+            "roll_number": "--",
+            "program": "--",
+            "cgpa": "--",
+            "is_graduated": "--",
+            "is_dropout": "--",
+
+            "father_name":  "--",
+            "father_occupation":  "--",
+            "guardian_name":  "--",
+            "guardian_occupation":  "--",
+            "date_of_birth":  "--",
+            "nic":  "--",
+            "blood_group":  "--",
+        }
+        return JsonResponse(json_data, status=200)
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)

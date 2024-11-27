@@ -9,6 +9,8 @@ urlpatterns = [
     path('signup/', views.signup), # Base User signup
     path('login/', views.login), # Base User login
 
+    path('user/get/', views.get_user), # Get user details
+
     # path('student/create/', students.student_create), # Signup + Student create
     # path('student/login/', students.student_login), # Login + Student get
     # path('student/update/', students.student_update),
