@@ -8,6 +8,9 @@ from .more_views import students, academics, rooms, adminrequests, faculty
 urlpatterns = [
     path('signup/', views.signup), # Base User signup
     path('login/', views.login), # Base User login
+    path('login/student/', views.login_student), # Student login
+    path('login/faculty/', views.login_faculty), # Faculty login
+    path('login/admin/', views.login_admin), # Admin login
 
     path('user/get/', views.get_user), # Get user details
 

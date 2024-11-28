@@ -135,3 +135,66 @@ def get_user(request):
         return JsonResponse(json_data, status=200)
     
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+# Student/faculty/admin specific logins
+
+@csrf_exempt
+def login_student(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        try:
+            user = User.objects.get(username=username)
+            if not user.student:
+                return JsonResponse({"error": "user is not a student."}, status=401)
+            if user.check_password(password) and user.student:
+                token = create_jwt_token(user.username)
+                return JsonResponse({"token": token}, status=200)
+            else:
+                return JsonResponse({"error": "Invalid credentials."}, status=401)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User does not exist."}, status=401)
+    return JsonResponse({"error": "Invalid request method."}, status=400)
+
+
+@csrf_exempt
+def login_faculty(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        try:
+            user = User.objects.get(username=username)
+            if not user.is_faculty:
+                return JsonResponse({"error": "user is not a faculty."}, status=401)
+            if user.check_password(password) and user.faculty:
+                token = create_jwt_token(user.username)
+                return JsonResponse({"token": token}, status=200)
+            else:
+                return JsonResponse({"error": "Invalid credentials."}, status=401)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User does not exist."}, status=401)
+    return JsonResponse({"error": "Invalid request method."}, status=400)
+
+
+@csrf_exempt
+def login_admin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        try:
+            user = User.objects.get(username=username)
+            if not user.is_superuser and not user.is_staff:
+                return JsonResponse({"error": "user is not an admin."}, status=401)
+            if user.check_password(password) and user.admin:
+                token = create_jwt_token(user.username)
+                return JsonResponse({"token": token}, status=200)
+            else:
+                return JsonResponse({"error": "Invalid credentials."}, status=401)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User does not exist."}, status=401)
+    return JsonResponse({"error": "Invalid request method."}, status=400)
