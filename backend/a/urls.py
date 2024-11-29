@@ -51,6 +51,7 @@ urlpatterns = [
 
 
     # Faculty endpoints
+    path('faculty/profile/get/', faculty.get_faculty_profile), # Get faculty profile
     path('faculty/requestmakeuplecture/', faculty.request_makeup_lecture), # Request a makeup lecture
     path('faculty/alllectures/', faculty.faculty_time_table), # Get faculty timetable
     path('faculty/studentsinlecture/', faculty.get_students_in_lecture), # Get students in a lecture

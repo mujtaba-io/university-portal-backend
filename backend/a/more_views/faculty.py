@@ -163,3 +163,28 @@ def mark_attendance(request):
         
         return JsonResponse({ "message": "Attendance marked successfully" }, status=201)
     return JsonResponse({ "error": "Invalid request method" }, status=400)
+
+
+
+
+
+
+
+# Get faculty profile data APi
+@csrf_exempt
+@token_required
+def get_faculty_profile(request):
+    if request.method == 'GET':
+        token = request.headers.get('token')
+        username = decode_jwt_token(token)
+        user = User.objects.get(username=username)
+        if user.is_faculty:
+            return JsonResponse({
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "phone": user.phone,
+            }, status=200)
+        return JsonResponse({"error": "Faculty not found"}, status=404)
+    return JsonResponse({"error": "Invalid request"}, status=400)
