@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .utils.jwt_utils import *
 import json
-from .models import User # Custom user, not the default one
+from .models import * # Custom user, not the default one
 
 
 
@@ -148,8 +148,7 @@ def login_student(request):
 
         try:
             user = User.objects.get(username=username)
-            if not user.student:
-                return JsonResponse({"error": "user is not a student."}, status=401)
+            student = Student.objects.get(user=user)
             if user.check_password(password) and user.student:
                 token = create_jwt_token(user.username)
                 return JsonResponse({"token": token}, status=200)
@@ -157,6 +156,8 @@ def login_student(request):
                 return JsonResponse({"error": "Invalid credentials."}, status=401)
         except User.DoesNotExist:
             return JsonResponse({"error": "User does not exist."}, status=401)
+        except Student.DoesNotExist:
+            return JsonResponse({"error": "User is not a student."}, status=401)
     return JsonResponse({"error": "Invalid request method."}, status=400)
 
 
@@ -170,7 +171,7 @@ def login_faculty(request):
             user = User.objects.get(username=username)
             if not user.is_faculty:
                 return JsonResponse({"error": "user is not a faculty."}, status=401)
-            if user.check_password(password) and user.faculty:
+            if user.check_password(password) and user.is_faculty:
                 token = create_jwt_token(user.username)
                 return JsonResponse({"token": token}, status=200)
             else:
@@ -190,7 +191,7 @@ def login_admin(request):
             user = User.objects.get(username=username)
             if not user.is_superuser and not user.is_staff:
                 return JsonResponse({"error": "user is not an admin."}, status=401)
-            if user.check_password(password) and user.admin:
+            if user.check_password(password):
                 token = create_jwt_token(user.username)
                 return JsonResponse({"token": token}, status=200)
             else:
