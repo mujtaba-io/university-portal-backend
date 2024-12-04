@@ -272,7 +272,7 @@ class News(models.Model):
     title = models.CharField(max_length=256, default='News Title')
     content = models.TextField(default="News content")
     youtube_link = models.URLField(default='https://www.youtube.com')
-    image_url = models.URLField(default='https://www.nist.gov/sites/default/files/styles/2800_x_2800_limit/public/images/2018/07/10/mass_spec_cd_scan.jpg')
+    image = models.ImageField(upload_to='uploads/news/', default='uploads/news/default.jpg')
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -297,7 +297,7 @@ linkedin
 """
 class Event(models.Model):
     title = models.CharField(max_length=256, default='Event Title')
-    image_url = models.CharField(max_length=256, default='https://www.nist.gov/sites/default/files/styles/2800_x_2800_limit/public/images/2018/07/10/mass_spec_cd_scan.jpg')
+    image = models.ImageField(upload_to='uploads/events/', default='uploads/events/default.jpg')
     description = models.TextField(default="Event description")
     link = models.URLField(default='https://www.example.com')
 

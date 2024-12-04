@@ -1,7 +1,7 @@
 
 from django.urls import include, path
 from . import views
-from .more_views import students, academics, rooms, adminrequests, faculty
+from .more_views import students, academics, rooms, adminrequests, faculty, edit_endpoints, delete_endpoints
 
 
 
@@ -26,15 +26,22 @@ urlpatterns = [
 
     path('calendar/', academics.get_academic_calendar), # Academic calendar
     path('calendar/addevent/', academics.add_academic_calendar_event), # Create an event in the calendar
+    path('calendar/edit/', edit_endpoints.edit_academic_calendar_event), # Delete an event in the calendar
+    path('calendar/delete/', delete_endpoints.delete_academic_calendar_event), # Delete an event in the calendar
 
     path('news/', academics.get_news), # Get news
     path('news/create/', academics.create_news), # Create news
+    path('news/edit/', edit_endpoints.edit_news), # Edit news
+    path('news/delete/', delete_endpoints.delete_news), # Delete news
     
     path('events/', academics.get_events), # Get events
     path('events/create/', academics.create_event), # Create event
+    path('events/edit/', edit_endpoints.edit_event),
+    path('events/delete/', delete_endpoints.delete_event),
 
 
     path('extracurricularactivities/', academics.get_extra_curricular_activities), # Get extra curricular activities
+
 
     path('pcs/get/', rooms.get_pcs), # Get PCs
     path('pcs/book/', rooms.book_pc), # Book a PC

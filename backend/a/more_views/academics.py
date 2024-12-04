@@ -18,6 +18,7 @@ def get_academic_calendar(request):
         events_data = []
         for event in events:
             events_data.append({
+                "calendar_event_id": event.pk,
                 "title": event.title,
                 "start_date": event.start_date.strftime('%d-%m-%Y'),
             })
@@ -88,6 +89,7 @@ def get_news(request):
         news_data = []
         for news_item in news:
             news_data.append({
+                "news_id": news_item.pk,
                 "title": news_item.title,
                 "content": news_item.content,
                 "youtube_link": news_item.youtube_link,
@@ -115,15 +117,15 @@ def create_news(request):
         title = request.POST.get('title', '').strip()
         content = request.POST.get('content', '').strip()
         youtube_link = request.POST.get('youtube_link', '').strip()
-        image_url = request.POST.get('image_url', '').strip()
-        if not title or not content or not youtube_link or not image_url:
+        image = request.FILES.get('image', None)
+        if not title or not content or not youtube_link or not image:
             return JsonResponse({ "error": "Title and content and yt link and image url is required" }, status=400)
         
         news = News.objects.create(
             title=title,
             content=content,
             youtube_link=youtube_link,
-            image_url=image_url
+            image=image
         )
         news.save()
 
@@ -142,8 +144,9 @@ def get_events(request):
         events_data = []
         for activity in events:
             events_data.append({
+                "event_id": activity.pk,
                 "title": activity.title,
-                "image_url": activity.image_url,
+                "image": activity.image.url,
                 "description": activity.description,
                 "link": activity.link,
                 "created_at": activity.created_at.strftime('%d-%m-%Y %H:%M'),
@@ -170,7 +173,7 @@ def create_event(request):
             return JsonResponse({ "error": "Only admin can create events" }, status=403)
         
         title = request.POST.get('title', '').strip()
-        image_url = request.POST.get('image_url', '').strip()
+        image = request.FILES.get('image', None)
         description = request.POST.get('description', '').strip()
         link = request.POST.get('link', '').strip()
         date = request.POST.get('date', '').strip()
@@ -187,7 +190,7 @@ def create_event(request):
 
         event = Event.objects.create(
             title=title,
-            image_url=image_url,
+            image=image,
             description=description,
             link=link,
             date=date,
@@ -219,6 +222,7 @@ def get_extra_curricular_activities(request):
         activities_data = []
         for activity in activities:
             activities_data.append({
+                "activity_id": activity.pk,
                 "title": activity.title,
                 "image": activity.image.url,
                 "description": activity.description,
