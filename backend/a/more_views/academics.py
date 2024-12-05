@@ -93,7 +93,7 @@ def get_news(request):
                 "title": news_item.title,
                 "content": news_item.content,
                 "youtube_link": news_item.youtube_link,
-                "image_url": news_item.image_url,
+                "image": news_item.image.url,
                 "created_at": news_item.created_at.strftime('%d-%m-%Y %H:%M'),
             })
         return JsonResponse({ "news": news_data }, status=200)
@@ -150,7 +150,7 @@ def get_events(request):
                 "description": activity.description,
                 "link": activity.link,
                 "created_at": activity.created_at.strftime('%d-%m-%Y %H:%M'),
-                "day": activity.day,
+                "date": activity.date.strftime('%d-%m-%Y'),
                 "time": activity.time.strftime('%H:%M'),
                 "venue": activity.venue,
                 "registration": activity.registration,
