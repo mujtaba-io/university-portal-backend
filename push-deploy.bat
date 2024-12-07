@@ -1,5 +1,5 @@
 @echo off
 git add .
-git commit -m "updated the code"
+git commit -m "Auto push-deploy via batch script"
 git push
 git push --force space

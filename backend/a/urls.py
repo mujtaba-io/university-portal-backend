@@ -2,7 +2,7 @@
 from django.urls import include, path
 from . import views
 from .more_views import students, academics, rooms, adminrequests, faculty, edit_endpoints, delete_endpoints
-
+from . import firebase
 
 
 urlpatterns = [
@@ -63,4 +63,10 @@ urlpatterns = [
     path('faculty/alllectures/', faculty.faculty_time_table), # Get faculty timetable
     path('faculty/studentsinlecture/', faculty.get_students_in_lecture), # Get students in a lecture
     path('faculty/markattendance/', faculty.mark_attendance), # Mark attendance of students in a lecture
+
+
+
+# Register fcm token for unique devices
+    path('registerfcmtoken/', firebase.register_fcm_token),
+
 ]

@@ -24,6 +24,9 @@ class User(AbstractUser):
     created_at = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
+
+    device_fcm_token = models.TextField(null=True) # Token for push notifications to unique device
+
     # Hash the password before saving
     def save(self, *args, **kwargs):
         # Hash the password if it's not hashed already
