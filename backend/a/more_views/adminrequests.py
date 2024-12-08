@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from ..utils.jwt_utils import *
 import json
 from ..models import *
+from .. import firebase
 
 
 # PC reservation requests
@@ -84,6 +85,15 @@ def accept_pc_request(request):
         pc_reservation.is_approved = True
         pc_reservation.save()
 
+        # Notify user of approval
+        device_fcm_token = student_user.device_fcm_token
+        if device_fcm_token:
+            firebase.send_push_notification(
+                token=device_fcm_token,
+                title="PC Reservation Approved",
+                body="Your PC reservation request has been approved"
+            )
+
         return JsonResponse(
             {
                 "message": "PC reservation request accepted",
@@ -121,6 +131,16 @@ def reject_pc_request(request):
 
         pc_reservation = PCReservation.objects.get(pc=pc, reserved_by=student_user.student, slot=slot)
         pc_reservation.delete()
+
+        # Notify user of rejection
+        device_fcm_token = student_user.device_fcm_token
+        if device_fcm_token:
+            firebase.send_push_notification(
+                token=device_fcm_token,
+                title="PC Reservation Rejected",
+                body="Your PC reservation request has been rejected"
+            )
+
 
         return JsonResponse(
             {
@@ -199,6 +219,15 @@ def accept_makeup_lecture_request(request):
         lecture.is_makeup_approved = True
         lecture.save()
 
+        # Send request to faculty user of the makeup lecture approval
+        device_fcm_token = lecture.teacher.device_fcm_token
+        if device_fcm_token:
+            firebase.send_push_notification(
+                token=device_fcm_token,
+                title="Makeup Class Approved",
+                body="Your makeup class request has been approved"
+            )
+
         return JsonResponse(
             {
                 "message": "Makeup class request accepted",
@@ -228,6 +257,15 @@ def reject_makeup_lecture_request(request):
 
         lecture = Lecture.objects.get(pk=lecture_id)
         lecture.delete()
+
+        # Send request to faculty user of the makeup lecture rejection
+        device_fcm_token = lecture.teacher.device_fcm_token
+        if device_fcm_token:
+            firebase.send_push_notification(
+                token=device_fcm_token,
+                title="Makeup Class Rejected",
+                body="Your makeup class request has been rejected"
+            )
 
         return JsonResponse(
             {
