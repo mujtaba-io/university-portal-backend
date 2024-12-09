@@ -64,6 +64,7 @@ urlpatterns = [
     path('faculty/studentsinlecture/', faculty.get_students_in_lecture), # Get students in a lecture
     path('faculty/markattendance/', faculty.mark_attendance), # Mark attendance of students in a lecture
 
+    path('examtimetables/', academics.get_exam_time_tables), # Get lectures of a faculty
 
 
 # Register fcm token for unique devices

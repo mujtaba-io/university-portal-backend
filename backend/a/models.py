@@ -33,6 +33,8 @@ class User(AbstractUser):
         if self.pk is None or not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
         
+        super().save(*args, **kwargs) # Save before student check (prevents bug)
+        
         potential_student = Student.objects.filter(user=self)
         if potential_student.exists():
             self.is_student = True
@@ -349,3 +351,95 @@ class HeldLecture(models.Model):
     def __str__(self):
         return f"{self.lecture} - {self.created_at}"
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# similar to lecture in timetable, but for exams
+class ExamPaper(models.Model):
+    _class = models.ForeignKey(Class, on_delete=models.CASCADE, blank=True, null=True)
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    day = models.CharField(max_length=16) # Monday, Tuesday, Wednesday, Thursday, Friday
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.course} - {self.teacher}"
+    
+    def get_json(self):
+        return {
+            "class": self._class.name,
+            "course": self.course.name,
+            "teacher": self.teacher.username,
+            "day": self.day,
+            "room": self.room.name,
+            "start_time": self.start_time.strftime('%H:%M'),
+            "end_time": self.end_time.strftime('%H:%M'),
+        }
+
+
+
+# similar to time tabel but for exams
+class ExamTimeTable(models.Model):
+    exam_papers = models.ManyToManyField(ExamPaper)
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.created_at}"
+    
+    def get_json(self):
+        exam_papers_data = []
+        for exam_paper in self.exam_papers.all():
+            exam_papers_data.append(exam_paper.get_json())
+        return {
+            "exam_papers": exam_papers_data
+        }

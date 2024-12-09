@@ -232,3 +232,21 @@ def get_extra_curricular_activities(request):
         return JsonResponse({ "extracurricularactivities": activities_data }, status=200)
     return JsonResponse({ "error": "Invalid request" }, status=400)
 
+
+
+
+
+
+
+
+
+@csrf_exempt
+def get_exam_time_tables(request):
+    if request.method == 'GET':
+        exam_timetables = ExamTimeTable.objects.all()
+        exam_timetables_data = []
+        for exam_timetable in exam_timetables:
+            exam_timetables_data.append(exam_timetable.get_json())
+        return JsonResponse({ "exam_timetables": exam_timetables_data }, status=200)
+    
+    return JsonResponse({ "error": "Invalid request" }, status=400)

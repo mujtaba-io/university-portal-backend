@@ -37,4 +37,7 @@ admin.site.register(PC)
 admin.site.register(PCReservation)
 
 
+# Exam related models
+admin.site.register(ExamTimeTable)
+admin.site.register(ExamPaper)
 
