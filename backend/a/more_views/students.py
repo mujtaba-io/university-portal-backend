@@ -59,7 +59,7 @@ def student_time_table(request):
         user = User.objects.get(username=username)
         if user.student:
             # Get the lectures of the student, ignoring the makeup lectures
-            lectures = user.student.lectures.filter(is_makeup=False)
+            lectures = user.student.lectures.all() # filter(is_makeup=False)
             lectures_data = []
             for lecture in lectures:
                 lectures_data.append({
