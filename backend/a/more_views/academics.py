@@ -241,12 +241,47 @@ def get_extra_curricular_activities(request):
 
 
 @csrf_exempt
+@token_required
 def get_exam_time_tables(request):
     if request.method == 'GET':
-        exam_timetables = ExamTimeTable.objects.all()
-        exam_timetables_data = []
-        for exam_timetable in exam_timetables:
-            exam_timetables_data.append(exam_timetable.get_json())
-        return JsonResponse({ "exam_timetables": exam_timetables_data }, status=200)
+        try:
+            # Get the current student based on JWT token
+            student = Student.objects.get(user__username=decode_jwt_token(request.headers.get('token')))
+            
+            # Get all exam timetables
+            exam_timetables = ExamTimeTable.objects.all()
+            exam_timetables_data = []
+            
+            for exam_timetable in exam_timetables:
+                filtered_papers = []
+                for exam_paper in exam_timetable.exam_papers.all():
+                    # Check if this exam paper is for student's class
+                    if exam_paper._class and exam_paper._class == student._class:
+                        filtered_papers.append(exam_paper.get_json())
+                    # Or check if the student is enrolled in this course through lectures
+                    elif student.lectures.filter(course=exam_paper.course).exists():
+                        filtered_papers.append(exam_paper.get_json())
+                
+                # Only add the timetable if it has papers for the student
+                if filtered_papers:
+                    exam_timetables_data.append({
+                        "exam_papers": filtered_papers
+                    })
+            
+            return JsonResponse({
+                "exam_timetables": exam_timetables_data,
+                "student_class": student._class.name if student._class else None
+            }, status=200)
+            
+        except Student.DoesNotExist:
+            return JsonResponse({
+                "error": "Student not found"
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                "error": str(e)
+            }, status=500)
     
-    return JsonResponse({ "error": "Invalid request" }, status=400)
+    return JsonResponse({
+        "error": "Invalid request"
+    }, status=400)
